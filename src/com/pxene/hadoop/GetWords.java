@@ -17,6 +17,7 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.util.GenericOptionsParser;
 
 public class GetWords {
 	
@@ -27,20 +28,19 @@ public class GetWords {
 		public void map(LongWritable key, Text value,
 				OutputCollector<Text, Text> output, Reporter reporter)
 				throws IOException {
-
-			String[] lines = value.toString().split("\t\n");
-			for (int i = 0; i < lines.length; i++) {
-				Pattern pattern = Pattern.compile("*m.baidu.com*|*m.sm.cn*|*m.sougou.com*|*m.so.com*");
-				Matcher matcher = pattern.matcher(lines[i]);
-				System.out.println("line data is " + lines[i]);
-				if (matcher.find()) {
-					
-					String[] rows = lines[i].split("\0x01");
-					output.collect(new Text(rows[1]), new Text(rows[3]));
-					//TODO rows[3] get the abstract word
-					System.out.println("IMSI is " + rows[1]);
-					System.out.println("url is " + rows[3]);
-				}
+				
+			//value is the data of line
+			
+			Pattern pattern = Pattern.compile(".*m.baidu.com.*|.*m.sm.cn.*|.*m.sougou.com.*|.*m.so.com.*");
+			Matcher matcher = pattern.matcher(value.toString());
+			System.out.println("line data is " + value.toString());
+			if (matcher.matches()) {
+				
+				String[] rows = value.toString().split(new Character((char) 0x01).toString());
+				output.collect(new Text(rows[1]), new Text(rows[3]));
+				//TODO rows[3] get the abstract word
+				System.out.println("IMSI is " + rows[1]);
+				System.out.println("url is " + rows[3]);
 			}
 		}
 	}
@@ -67,18 +67,22 @@ public class GetWords {
 		      output.collect(key, new Text(toReturn.toString()));
 		}
 	}
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		JobClient client = new JobClient();
 	    JobConf conf = new JobConf(GetWords.class);
-
+	    String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
+	    if (otherArgs.length < 2) {
+	      System.err.println("Usage: dealData <in> [<in>...] <out>");
+	      System.exit(2);
+	    }
 	    conf.setJobName("GetWords");
-
 	    conf.setOutputKeyClass(Text.class);
 	    conf.setOutputValueClass(Text.class);
-
-	    FileInputFormat.addInputPath(conf, new Path("input"));
-	    FileOutputFormat.setOutputPath(conf, new Path("output"));
-
+	    for (int i = 0; i < otherArgs.length - 1; ++i) {
+		      FileInputFormat.addInputPath(conf, new Path(otherArgs[i]));
+		}
+		FileOutputFormat.setOutputPath(conf,
+		      new Path(otherArgs[otherArgs.length - 1]));
 	    conf.setMapperClass(GetWordsMapper.class);
 	    conf.setReducerClass(GetWordsReducer.class);
 	    client.setConf(conf);
