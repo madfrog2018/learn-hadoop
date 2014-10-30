@@ -41,8 +41,8 @@ public class GetWords {
 			Matcher sougouMatcher = sougouPattern.matcher(value.toString());
 			Matcher soMatcher = soPattern.matcher(value.toString());
 			System.out.println("line data is " + value.toString());
-			if (matcher.matches()) {
-				
+			if (bdMatcher.matches()) {
+				//baidu search url
 				String[] rows = value.toString().split(new Character((char) 0x01).toString());
 				String url = rows[3];
 				if
