@@ -31,12 +31,21 @@ public class GetWords {
 				
 			//value is the data of line
 			
-			Pattern pattern = Pattern.compile(".*m.baidu.com.*|.*m.sm.cn.*|.*m.sougou.com.*|.*m.so.com.*");
-			Matcher matcher = pattern.matcher(value.toString());
+			Pattern bdPattern = Pattern.compile(".*m.baidu.com.*");
+			Pattern smPattern = Pattern.compile(".*m.sm.cn.*");
+			Pattern sougouPattern = Pattern.compile(".*m.sougou.com.*");
+			Pattern soPattern = Pattern.compile(".*m.so.com.*");
+			
+			Matcher bdMatcher = bdPattern.matcher(value.toString());
+			Matcher smMatcher = smPattern.matcher(value.toString());
+			Matcher sougouMatcher = sougouPattern.matcher(value.toString());
+			Matcher soMatcher = soPattern.matcher(value.toString());
 			System.out.println("line data is " + value.toString());
 			if (matcher.matches()) {
 				
 				String[] rows = value.toString().split(new Character((char) 0x01).toString());
+				String url = rows[3];
+				if
 				output.collect(new Text(rows[1]), new Text(rows[3]));
 				//TODO rows[3] get the abstract word
 				System.out.println("IMSI is " + rows[1]);
