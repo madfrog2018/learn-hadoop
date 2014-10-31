@@ -44,58 +44,65 @@ public class GetWords {
 			System.out.println("line data is " + value.toString());
 			String[] rows = value.toString().split(new Character((char) 0x01).toString());
 			String url = rows[3];
-			if (bdMatcher.matches()) {
-				//baidu search url
-				Pattern wordPattern = Pattern.compile(".*?word=.*");
-				Matcher wordMatcher = wordPattern.matcher(url);
-				if (wordMatcher.matches()) {
-					//include keywords
-					int start = url.indexOf("?word=");
-					int end = url.indexOf("&");
-					if (start > 0 && end > 0) {
-						keyWords = url.substring(start + 6, end);
+			if (bdMatcher.matches() || smMatcher.matches() || 
+					sougouMatcher.matches() || soMatcher.matches()) {
+				if (bdMatcher.matches()) {
+					//baidu search url
+					Pattern wordPattern = Pattern.compile(".*?word=.*");
+					Matcher wordMatcher = wordPattern.matcher(url);
+					if (wordMatcher.matches()) {
+						//include keywords
+						int start = url.indexOf("?word=");
+						int end = url.indexOf("&");
+						if (start > 0 && end > 0) {
+							keyWords = url.substring(start + 6, end);
+							System.out.println("baidu keywords is " + URLDecoder.decode(keyWords, "UTF-8"));
+							output.collect(new Text(rows[1]), new Text(URLDecoder.decode(keyWords, "UTF-8")));
+						}
 					}
 				}
-			}
-			
-			if (smMatcher.matches() || soMatcher.matches()) {
 				
-				//shenma search && 360so search
-				Pattern wordPattern = Pattern.compile(".*?q=.*");
-				Matcher wordMatcher = wordPattern.matcher(url);
-				if (wordMatcher.matches()) {
+				if (smMatcher.matches() || soMatcher.matches()) {
 					
-					//
-					int start = url.indexOf("?q=");
-					int end = url.indexOf("&");
-					if (start > 0 && end > 0) {
+					//shenma search && 360so search
+					Pattern wordPattern = Pattern.compile(".*?q=.*");
+					Matcher wordMatcher = wordPattern.matcher(url);
+					if (wordMatcher.matches()) {
 						
-						keyWords = url.substring(start + 3, end);
+						//
+						int start = url.indexOf("?q=");
+						int end = url.indexOf("&");
+						if (start > 0 && end > 0) {
+							
+							keyWords = url.substring(start + 3, end);
+							System.out.println("sm and so keywords is " + URLDecoder.decode(keyWords, "UTF-8"));
+							output.collect(new Text(rows[1]), new Text(URLDecoder.decode(keyWords, "UTF-8")));
+						}
 					}
 				}
-			}
-			
-			if (sougouMatcher.matches()) {
 				
-				//360so
-				Pattern wordPattern = Pattern.compile(".*keyword=.*");
-				Matcher wordMatcher = wordPattern.matcher(url);
-				if(wordMatcher.matches()){
+				if (sougouMatcher.matches()) {
 					
-					int start = url.indexOf("keyword=");
-					int end = url.indexOf("&", start);
-					if (start > 0 && end > 0) {
-						keyWords = url.substring(start + 8, end);
-					}else {
-						keyWords = url.substring(start);
+					//360so
+					Pattern wordPattern = Pattern.compile(".*keyword=.*");
+					Matcher wordMatcher = wordPattern.matcher(url);
+					if(wordMatcher.matches()){
+						
+						int start = url.indexOf("keyword=");
+						int end = url.indexOf("&", start);
+						if (start > 0 && end > 0) {
+							keyWords = url.substring(start + 8, end);
+						}else {
+							keyWords = url.substring(start);
+						}
+						System.out.println("sougou keywords is " + URLDecoder.decode(keyWords, "UTF-8"));
+						output.collect(new Text(rows[1]), new Text(URLDecoder.decode(keyWords, "UTF-8")));
 					}
 				}
+				//TODO rows[3] get the abstract word
+				System.out.println("IMSI is " + rows[1]);
+				System.out.println("url is " + rows[3]);
 			}
-			
-			output.collect(new Text(rows[1]), new Text(URLDecoder.decode(keyWords, "UTF-8")));
-			//TODO rows[3] get the abstract word
-			System.out.println("IMSI is " + rows[1]);
-			System.out.println("url is " + rows[3]);
 		}
 	}
 	
@@ -112,7 +119,7 @@ public class GetWords {
 		    StringBuilder toReturn = new StringBuilder();
 		    while (values.hasNext()){
 		    	if (!first){
-		    		toReturn.append(", ");
+		    		toReturn.append(",");
 		    	}
 		        first=false;
 		        toReturn.append(values.next().toString());
@@ -121,6 +128,21 @@ public class GetWords {
 		      output.collect(key, new Text(toReturn.toString()));
 		}
 	}
+	
+	
+	public static class SplitWordsReducer extends MapReduceBase implements 
+		Reducer<Text, Text, Text, Text>{
+
+		@Override
+		public void reduce(Text key, Iterator<Text> values,
+				OutputCollector<Text, Text> output, Reporter reporter)
+				throws IOException {
+
+			
+		}
+		
+	}
+	
 	public static void main(String[] args) throws IOException {
 		JobClient client = new JobClient();
 	    JobConf conf = new JobConf(GetWords.class);

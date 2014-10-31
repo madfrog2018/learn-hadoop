@@ -67,7 +67,7 @@ public class Test {
 //		System.out.println(strings[3]);
 		
 		
-		String string = "%E6%B1%BD%E8%BD%A6";
+		String string = "%E8%AE%A1%E7%AE%97%E6%9C%BA";
 		String wordString = null;;
 		try {
 			wordString = URLDecoder.decode(string, "UTF-8");
