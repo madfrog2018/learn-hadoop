@@ -1,6 +1,7 @@
 package com.pxene.hadoop;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +31,7 @@ public class GetWords {
 				throws IOException {
 				
 			//value is the data of line
-			
+			String keyWords = null;
 			Pattern bdPattern = Pattern.compile(".*m.baidu.com.*");
 			Pattern smPattern = Pattern.compile(".*m.sm.cn.*");
 			Pattern sougouPattern = Pattern.compile(".*m.sougou.com.*");
@@ -41,16 +42,60 @@ public class GetWords {
 			Matcher sougouMatcher = sougouPattern.matcher(value.toString());
 			Matcher soMatcher = soPattern.matcher(value.toString());
 			System.out.println("line data is " + value.toString());
+			String[] rows = value.toString().split(new Character((char) 0x01).toString());
+			String url = rows[3];
 			if (bdMatcher.matches()) {
 				//baidu search url
-				String[] rows = value.toString().split(new Character((char) 0x01).toString());
-				String url = rows[3];
-				if
-				output.collect(new Text(rows[1]), new Text(rows[3]));
-				//TODO rows[3] get the abstract word
-				System.out.println("IMSI is " + rows[1]);
-				System.out.println("url is " + rows[3]);
+				Pattern wordPattern = Pattern.compile(".*?word=.*");
+				Matcher wordMatcher = wordPattern.matcher(url);
+				if (wordMatcher.matches()) {
+					//include keywords
+					int start = url.indexOf("?word=");
+					int end = url.indexOf("&");
+					if (start > 0 && end > 0) {
+						keyWords = url.substring(start + 6, end);
+					}
+				}
 			}
+			
+			if (smMatcher.matches() || soMatcher.matches()) {
+				
+				//shenma search && 360so search
+				Pattern wordPattern = Pattern.compile(".*?q=.*");
+				Matcher wordMatcher = wordPattern.matcher(url);
+				if (wordMatcher.matches()) {
+					
+					//
+					int start = url.indexOf("?q=");
+					int end = url.indexOf("&");
+					if (start > 0 && end > 0) {
+						
+						keyWords = url.substring(start + 3, end);
+					}
+				}
+			}
+			
+			if (sougouMatcher.matches()) {
+				
+				//360so
+				Pattern wordPattern = Pattern.compile(".*keyword=.*");
+				Matcher wordMatcher = wordPattern.matcher(url);
+				if(wordMatcher.matches()){
+					
+					int start = url.indexOf("keyword=");
+					int end = url.indexOf("&", start);
+					if (start > 0 && end > 0) {
+						keyWords = url.substring(start + 8, end);
+					}else {
+						keyWords = url.substring(start);
+					}
+				}
+			}
+			
+			output.collect(new Text(rows[1]), new Text(URLDecoder.decode(keyWords, "UTF-8")));
+			//TODO rows[3] get the abstract word
+			System.out.println("IMSI is " + rows[1]);
+			System.out.println("url is " + rows[3]);
 		}
 	}
 	
