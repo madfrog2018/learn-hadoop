@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -54,8 +53,20 @@ public class NewGetWords {
 							int end = url.indexOf("&");
 							if (start > 0 && end > 0) {
 								keyWords = url.substring(start + 6, end);
-								System.out.println("baidu keywords is " + URLDecoder.decode(keyWords, "UTF-8"));
-								context.write(new Text(rows[1]), new Text(URLDecoder.decode(keyWords, "UTF-8")));
+								String decodeString = URLDecoder.decode(keyWords, "UTF-8");
+								System.out.println("baidu keywords is " + decodeString);
+								if (decodeString.indexOf(" ") > -1) {
+									
+									//keywords is more than one
+									System.out.println("keywords is more than one");
+									String[] splits = decodeString.split(" ");
+									for (String string : splits) {
+										System.out.println("==========split string is " + string);
+										context.write(new Text(rows[1]), new Text(string));
+									}
+ 								} else {
+									context.write(new Text(rows[1]), new Text(URLDecoder.decode(keyWords, "UTF-8")));
+								}
 							}
 						}
 					}
@@ -73,8 +84,19 @@ public class NewGetWords {
 							if (start > 0 && end > 0) {
 								
 								keyWords = url.substring(start + 3, end);
-								System.out.println("sm and so keywords is " + URLDecoder.decode(keyWords, "UTF-8"));
-								context.write(new Text(rows[1]), new Text(URLDecoder.decode(keyWords, "UTF-8")));
+								String decodeString = URLDecoder.decode(keyWords, "UTF-8");
+								System.out.println("sm and so keywords is " + decodeString);
+								if (decodeString.indexOf(" ") > -1) {
+									
+									//keywords is more than one
+									String[] splits = decodeString.split(" ");
+									for (String string : splits) {
+										
+										context.write(new Text(rows[1]), new Text(string));
+									}
+ 								} else {
+									context.write(new Text(rows[1]), new Text(URLDecoder.decode(keyWords, "UTF-8")));
+								}
 							}
 						}
 					}
@@ -94,7 +116,18 @@ public class NewGetWords {
 								keyWords = url.substring(start);
 							}
 							System.out.println("sougou keywords is " + URLDecoder.decode(keyWords, "UTF-8"));
-							context.write(new Text(rows[1]), new Text(URLDecoder.decode(keyWords, "UTF-8")));
+							String decodeString = URLDecoder.decode(keyWords, "UTF-8");
+							if (decodeString.indexOf(" ") > -1) {
+								
+								//keywords is more than one
+								String[] splits = decodeString.split(" ");
+								for (String string : splits) {
+									
+									context.write(new Text(rows[1]), new Text(string));
+								}
+								} else {
+								context.write(new Text(rows[1]), new Text(URLDecoder.decode(keyWords, "UTF-8")));
+							}
 						}
 					}
 					//TODO rows[3] get the abstract word

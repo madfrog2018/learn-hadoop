@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import javax.management.Query;
 
 import org.apache.commons.httpclient.HttpsURL;
+import org.mortbay.util.UrlEncoded;
 
 
 
@@ -85,29 +86,37 @@ public class Test {
 //		System.out.println(matcher.matches());
 		
 		
-		Pattern pattern = Pattern.compile(".*?word=.*");
+//		Pattern pattern = Pattern.compile(".*?word=.*");
+//		
+//		String string2 = "http://wap.sogou.com/web/searchList.jsp?uID=ZdMUhqAyEI0anlIN&v=5&"
+//				+ "w=1274&t=1414637066806&s_t=1414637069911&keyword=%E7%BE%8E%E5%9B%BD&pg=webSearchList";
+//		
+//		Matcher matcher = pattern.matcher(string2);
+//		System.out.println(matcher.matches());
+//		int start = string2.indexOf("keyword=");
+//		System.out.println(start);
+//		int end = string2.indexOf("&", start);
+//		System.out.println(end);
+//		String key = string2.substring(start + 8, end);
+//		System.out.println(key);
+//		
+//		try {
+//			URL url = new URL(string2);
+//			String query = url.getQuery();
+//			System.out.println(query);
+//		} catch (MalformedURLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
-		String string2 = "http://wap.sogou.com/web/searchList.jsp?uID=ZdMUhqAyEI0anlIN&v=5&"
-				+ "w=1274&t=1414637066806&s_t=1414637069911&keyword=%E7%BE%8E%E5%9B%BD&pg=webSearchList";
 		
-		Matcher matcher = pattern.matcher(string2);
-		System.out.println(matcher.matches());
-		int start = string2.indexOf("keyword=");
-		System.out.println(start);
-		int end = string2.indexOf("&", start);
-		System.out.println(end);
-		String key = string2.substring(start + 8, end);
-		System.out.println(key);
-		
-		try {
-			URL url = new URL(string2);
-			String query = url.getQuery();
-			System.out.println(query);
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		String str = "汽车路虎价格";
+		String[] strings = str.split(" ");
+		for (String string2 : strings) {
+			
+			System.out.println(string2);
 		}
-		
+		System.out.println(str.contains(" "));
 
 	}
 }
