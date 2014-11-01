@@ -110,13 +110,11 @@ public class Test {
 //		}
 		
 		
-		String str = "汽车路虎价格";
-		String[] strings = str.split(" ");
+		String str = "汽车";
+		String[] strings = str.split(",");
 		for (String string2 : strings) {
 			
 			System.out.println(string2);
 		}
-		System.out.println(str.contains(" "));
-
 	}
 }
